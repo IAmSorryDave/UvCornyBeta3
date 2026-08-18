@@ -242,7 +242,7 @@ jobs:
         shell: bash
         run: |
           VERSION=$( uv version )
-          echo "version=$VERSION" >> $GITHUB_OUTPU
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit & Push to Development
         uses: stefanzweifel/git-auto-commit-action@v7
