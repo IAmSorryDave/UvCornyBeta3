@@ -206,22 +206,51 @@ jobs:
 
     steps:
 
-      - name: Checkout Project
+      - name: Checkout Main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
-  
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-  
-      - name: Sync Hotfix Branch
+
+      - name: Setup Development Branch
         run: |
           git fetch origin development || true
-          git checkout -B development origin/main
-          git push origin development --force-with-lease
+          git checkout development || git checkout -b development main
+          git reset --hard main
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v7
+
+      - name: Dry Run Minor & Dev Version Increment
+        run: |
+          uv version --bump minor --bump dev --dry-run
+
+      - name: Minor Version Increment
+        run: |
+          uv version --bump minor --bump dev
+
+      - name: Verify Version Changed
+        run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
+
+      - name: Extract Version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$( uv version )
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit & Push to Development
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: development
+          push_options: '--force-with-lease'
+          commit_message: "chore: cycle development version to ${{ steps.version.outputs.version }}"
+          file_pattern: pyproject.toml
 
   
   
