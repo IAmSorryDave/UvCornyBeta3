@@ -50,16 +50,18 @@ jobs:
         run: |
           uv version --bump minor --bump dev
 
-      - name: Sync Semver Minor with Tests
+      - name: Zero Out Semver Features
+        run: uv version --bump minor=0
+        
+      - name: Sync Semver Minor with Test Directories
         shell: bash
         run: |
           count=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
-          echo "Found $count test directories"
-          for ((i=1; i<=count; i++)); do
+          echo "Found $count test directories."
+          for ((i=0; i<=count; i++)); do
             uv version --bump minor
           done
 
-          
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
@@ -72,7 +74,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Commit & Push Version Change
-        if: steps.check_version.outputs.has_dev == 'false'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: development
