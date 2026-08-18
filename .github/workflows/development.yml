@@ -54,7 +54,7 @@ jobs:
         shell: bash
         run: |
           count=$(find tests/ -maxdepth 1 -type d ! -name . | wc -l)
-          for ((i=0; i<=count; i++)); do
+          for ((i=1; i<=count; i++)); do
             uv version --bump minor
           done
           
