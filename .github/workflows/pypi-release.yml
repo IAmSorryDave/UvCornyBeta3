@@ -206,22 +206,49 @@ jobs:
 
     steps:
 
-      - name: Checkout Project
+      - name: Checkout Main
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
-  
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-  
-      - name: Sync Hotfix Branch
+
+      - name: Setup Development Branch
         run: |
           git fetch origin development || true
-          git checkout -B development origin/main
-          git push origin development --force-with-lease
+          git checkout development || git checkout -b development main
+          git reset --hard main
+
+      - name: Format UV Version
+        id: format
+        shell: bash
+        run: |
+          CURRENT_VERSION=$(uv version --short)
+          MAJOR=${CURRENT_VERSION:0:1}
+          MINOR=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
+          PATCH=${CURRENT_VERSION:4:1}
+          VERSION="${MAJOR}.${MINOR}.${PATCH}.dev1"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+      - name: Sync Semver
+        shell: bash
+        run: |
+          echo ${{ steps.format.outputs.version }}
+          uv version ${{ steps.format.outputs.version }}
+
+      - name: Verify Version Changed
+        run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
+
+      - name: Commit & Push Version Change
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: development
+          commit_message: "chore: bump development version to ${{ steps.format.outputs.version }}"
+          file_pattern: pyproject.toml
 
   
   
