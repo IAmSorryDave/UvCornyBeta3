@@ -40,7 +40,9 @@ jobs:
     
       - name: Sync Semver
         shell: bash
-        run:  uv version ${{ steps.format.outputs.version }}
+        run: |
+          echo ${{ steps.format.outputs.version }}
+          uv version ${{ steps.format.outputs.version }}
 
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
