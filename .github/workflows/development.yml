@@ -32,9 +32,9 @@ jobs:
         shell: bash
         run: |
           CURRENT_VERSION=$(uv version --short)
-          MAJOR=${$CURRENT_VERSION:0:1}
+          MAJOR=${CURRENT_VERSION:0:1}
           MINOR=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
-          PATCH=${$CURRENT_VERSION:4:1}
+          PATCH=${CURRENT_VERSION:4:1}
           VERSION="${MAJOR}.${MINOR}.${PATCH}.dev1"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
     
