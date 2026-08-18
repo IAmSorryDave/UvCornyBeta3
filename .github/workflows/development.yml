@@ -43,21 +43,16 @@ jobs:
       - name: Dry Run Version Minor and Dev Increment
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
-          uv version 0.0.0.dev1 --dry-run
+          uv version --bump minor --bump dev --dry-run
 
       - name: Version Minor and Dev Increment
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
-          uv version 0.0.0.dev1 
+          uv version --bump minor --bump dev
     
       - name: Sync Semver Minor with Test Directories
         shell: bash
-        run: |
-          count=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
-          echo "Found $count test directories."
-          for ((i=0; i<=count; i++)); do
-            uv version --bump minor --bump dev
-          done
+        run:  uv version --bump minor=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l) --bump dev
 
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
