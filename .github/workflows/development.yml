@@ -34,7 +34,7 @@ jobs:
         run: |
           CURRENT_VERSION=$(uv version --short)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          if [[ "$CURRENT_VERSION" == *".dev"* ]]; then
+          if [[ "$CURRENT_VERSION" == *.dev* ]]; then
             echo "has_dev=true" >> $GITHUB_OUTPUT
           else
             echo "has_dev=false" >> $GITHUB_OUTPUT
@@ -49,8 +49,7 @@ jobs:
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
           uv version --bump minor --bump dev
-
-        
+    
       - name: Sync Semver Minor with Test Directories
         shell: bash
         run: |
