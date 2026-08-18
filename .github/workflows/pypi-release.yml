@@ -177,21 +177,24 @@ jobs:
     needs: finalize
     permissions:
       contents: write
-
+  
     steps:
-
+  
       - name: Checkout Project
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
-
-      - name: Sync Hotfix Branch
+  
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin hotfix || git checkout --orphan hotfix
-          git reset --hard main
+  
+      - name: Sync Hotfix Branch
+        run: |
+          git fetch origin hotfix || true
+          git checkout -B hotfix origin/main
           git push origin hotfix --force-with-lease
 
   cycle:
@@ -203,11 +206,22 @@ jobs:
 
     steps:
 
-      - name: Checkout Project
-        uses: actions/checkout@v7
+      - name: Checkout Main
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup Development Branch
+        run: |
+          git fetch origin development || true
+          git checkout development || git checkout -b development main
+          git reset --hard main
 
       - name: Install UV
         uses: astral-sh/setup-uv@v7
@@ -223,16 +237,12 @@ jobs:
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
-      - name: Stash Changes
-        shell: bash
-        run: git stash
-
       - name: Extract Version
         id: version
         shell: bash
         run: |
           VERSION=$( uv version )
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPU
 
       - name: Commit & Push to Development
         uses: stefanzweifel/git-auto-commit-action@v7
