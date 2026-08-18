@@ -107,7 +107,6 @@ jobs:
         name: pypi-python-package-distributions
         path: dist/
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        run_conclusion: success
 
     - name: Publish Distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
@@ -181,7 +180,7 @@ jobs:
     steps:
   
       - name: Checkout Project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: main
@@ -207,7 +206,7 @@ jobs:
     steps:
 
       - name: Checkout Main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           ref: main
@@ -226,30 +225,32 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
 
-      - name: Dry Run Minor & Dev Version Increment
+      - name: Format UV Version
+        id: format
+        shell: bash
         run: |
-          uv version --bump minor --bump dev --dry-run
-
-      - name: Minor Version Increment
+          CURRENT_VERSION=$(uv version --short)
+          MAJOR=${CURRENT_VERSION:0:1}
+          MINOR=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
+          PATCH=${CURRENT_VERSION:4:1}
+          VERSION="${MAJOR}.${MINOR}.${PATCH}.dev1"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+    
+      - name: Sync Semver
+        shell: bash
         run: |
-          uv version --bump minor --bump dev
+          echo ${{ steps.format.outputs.version }}
+          uv version ${{ steps.format.outputs.version }}
 
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
-      - name: Extract Version
-        id: version
-        shell: bash
-        run: |
-          VERSION=$( uv version )
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      - name: Commit & Push to Development
+      - name: Commit & Push Version Change
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: development
           push_options: '--force-with-lease'
-          commit_message: "chore: cycle development version to ${{ steps.version.outputs.version }}"
+          commit_message: "chore: bump development version to ${{ steps.format.outputs.version }}"
           file_pattern: pyproject.toml
 
   
