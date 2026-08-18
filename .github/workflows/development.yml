@@ -53,7 +53,7 @@ jobs:
       - name: Sync Semver Minor with Tests
         shell: bash
         run: |
-          count=$(find tests/ -maxdepth 1 -type d ! -name . | wc -l)
+          count=$(find ${PWD}/tests/ -maxdepth 1 -type d ! -name . | wc -l)
           for ((i=1; i<=count; i++)); do
             uv version --bump minor
           done
