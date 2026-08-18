@@ -223,10 +223,6 @@ jobs:
       - name: Verify Version Changed
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
-      - name: Stash Changes
-        shell: bash
-        run: git stash
-
       - name: Extract Version
         id: version
         shell: bash
@@ -234,13 +230,18 @@ jobs:
           VERSION=$( uv version )
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
+      - name: Commit Local Changes
+        shell: bash
+        run: |
+          git add .
+          git commit -m "chore: cycle development version to ${{ steps.version.outputs.version }}"
+
       - name: Commit & Push to Development
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: development
           push_options: '--force-with-lease'
           commit_message: "chore: cycle development version to ${{ steps.version.outputs.version }}"
-          file_pattern: pyproject.toml
 
   
   
