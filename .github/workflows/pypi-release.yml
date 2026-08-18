@@ -250,6 +250,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           branch: development
+          push_options: '--force-with-lease'
           commit_message: "chore: bump development version to ${{ steps.format.outputs.version }}"
           file_pattern: pyproject.toml
 
