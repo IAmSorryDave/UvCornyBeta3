@@ -177,21 +177,24 @@ jobs:
     needs: finalize
     permissions:
       contents: write
-
+  
     steps:
-
+  
       - name: Checkout Project
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
-
-      - name: Sync Hotfix Branch
+  
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin hotfix || git checkout --orphan hotfix
-          git reset --hard main
+  
+      - name: Sync Hotfix Branch
+        run: |
+          git fetch origin hotfix || true
+          git checkout -B hotfix origin/main
           git push origin hotfix --force-with-lease
 
   cycle:
@@ -203,11 +206,22 @@ jobs:
 
     steps:
 
-      - name: Checkout Project
-        uses: actions/checkout@v7
+      - name: Checkout Main
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: main
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup Development Branch
+        run: |
+          git fetch origin development || true
+          git checkout development || git checkout -b development main
+          git reset --hard main
 
       - name: Install UV
         uses: astral-sh/setup-uv@v7
@@ -236,6 +250,7 @@ jobs:
           branch: development
           push_options: '--force-with-lease'
           commit_message: "chore: cycle development version to ${{ steps.version.outputs.version }}"
+          file_pattern: pyproject.toml
 
   
   
