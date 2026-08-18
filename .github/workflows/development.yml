@@ -43,20 +43,20 @@ jobs:
       - name: Dry Run Version Minor and Dev Increment
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
-          uv version --bump minor --bump dev --dry-run
+          uv version 0.0.0.dev1 --dry-run
 
       - name: Version Minor and Dev Increment
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
-          uv version --bump minor --bump dev
+          uv version 0.0.0.dev1 
     
       - name: Sync Semver Minor with Test Directories
         shell: bash
         run: |
           count=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
           echo "Found $count test directories."
-          for ((i=1; i<=count; i++)); do
-            uv version --bump minor
+          for ((i=0; i<=count; i++)); do
+            uv version --bump minor --bump dev
           done
 
       - name: Verify Version Changed
