@@ -49,9 +49,16 @@ jobs:
         if: steps.check_version.outputs.has_dev == 'false'
         run: |
           uv version --bump minor --bump dev
+
+      - name: Sync Semver Minor with Tests
+        shell: bash
+        run: |
+          count=$(find tests/ -maxdepth 1 -type d ! -name . | wc -l) - 1
+          for ((i=1; i<=count; i++)); do
+            uv version --bump minor
+          done
           
       - name: Verify Version Changed
-        if: steps.check_version.outputs.has_dev == 'false'
         run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
       - name: Get Updated Version
