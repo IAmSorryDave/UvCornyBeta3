@@ -212,30 +212,8 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Setup Development Branch
-        run: |
-          git fetch origin development || true
-          git checkout development || git checkout -b development main
-          git reset --hard main
-
       - name: Install UV
         uses: astral-sh/setup-uv@v7
-
-      - name: Dry Run Minor & Dev Version Increment
-        run: |
-          uv version --bump minor --bump dev --dry-run
-
-      - name: Minor Version Increment
-        run: |
-          uv version --bump minor --bump dev
-
-      - name: Verify Version Changed
-        run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
       - name: Extract Version
         id: version
