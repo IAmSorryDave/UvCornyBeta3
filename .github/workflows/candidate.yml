@@ -6,6 +6,9 @@ on:
     branches:
       - candidate
 
+permissions:
+  contents: write
+
 jobs:
 
   increment:
