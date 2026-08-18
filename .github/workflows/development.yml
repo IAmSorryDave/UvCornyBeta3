@@ -50,15 +50,13 @@ jobs:
         run: |
           uv version --bump minor --bump dev
 
-      - name: Zero Out Semver Features
-        run: uv version --bump minor=0
         
       - name: Sync Semver Minor with Test Directories
         shell: bash
         run: |
           count=$(find ./tests -maxdepth 1 -mindepth 1 -type d | wc -l)
           echo "Found $count test directories."
-          for ((i=0; i<=count; i++)); do
+          for ((i=1; i<=count; i++)); do
             uv version --bump minor
           done
 
