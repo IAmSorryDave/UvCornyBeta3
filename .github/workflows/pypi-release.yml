@@ -236,6 +236,7 @@ jobs:
           branch: development
           push_options: '--force-with-lease'
           commit_message: "chore: cycle development version to ${{ steps.version.outputs.version }}"
+          file_pattern: pyproject.toml
 
   
   
