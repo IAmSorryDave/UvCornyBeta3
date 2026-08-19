@@ -33,7 +33,7 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
         with:
-          cache-suffix: ${{ github.job }}
+          cache-suffix: ${{ github.job }}-${{ github.run_id }}
 
       - name: Check Current Version
         id: check_version
@@ -137,7 +137,7 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
         with:
-          cache-suffix: ${{ github.job }}
+          cache-suffix: ${{ github.job }}-${{ github.run_id }}
 
       - name: Dry Run Stable Version Increment
         if: needs.publish-to-pypi.outputs.release_candidate == 'true'
@@ -235,7 +235,7 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v7
         with:
-          cache-suffix: ${{ github.job }}
+          cache-suffix: ${{ github.job }}-${{ github.run_id }}
 
       - name: Format UV Version
         id: format
