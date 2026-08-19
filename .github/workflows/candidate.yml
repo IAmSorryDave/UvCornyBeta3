@@ -94,23 +94,12 @@ jobs:
         uses: actions/checkout@v7
         with:
           ref: candidate
-          fetch-depth: 0  # Fetch all history
+          fetch-depth: 0
 
       - name: Install UV
         uses: astral-sh/setup-uv@v7
         with:
           cache-suffix: ${{ github.job }}
-
-      - name: Dry Run Version Increment
-        run: |
-          uv version --bump rc --dry-run
-
-      - name: Version Increment
-        run: |
-          uv version --bump rc
-
-      - name: Verify Version Changed
-        run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
 
       - name: Create release branch from version
         run: |
