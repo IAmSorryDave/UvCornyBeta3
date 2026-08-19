@@ -101,13 +101,37 @@ jobs:
         with:
           cache-suffix: ${{ github.job }}
 
+      - name: Dry Run Version Increment
+        run: |
+          uv version --bump rc --dry-run
+
+      - name: Version Increment
+        run: |
+          uv version --bump rc
+
+      - name: Verify Version Changed
+        run: git diff --exit-code pyproject.toml || echo "Version updated successfully"
+
       - name: Create release branch from version
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git checkout hotfix
           git checkout -b release@v$(uv version --short)
           git push origin release@v$(uv version --short)
+
+      - name: Increment Release Candidate Version
+        id: version
+        shell: bash
+        run: |
+          VERSION=$( uv version --short)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit & Push Version Change
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: candidate
+          commit_message: "chore: bump rc version to ${{ steps.version.outputs.version }}"
+          file_pattern: pyproject.toml
 
   publish-to-testpypi:
       name: Publish Python 🐍 Distribution 📦 to TestPyPi
