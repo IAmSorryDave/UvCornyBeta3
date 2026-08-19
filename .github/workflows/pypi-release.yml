@@ -19,9 +19,6 @@ jobs:
     if: github.event.pull_request.merged == true
     name: Build Distribution 📦; Cache Distribution ⬆️
     runs-on: ubuntu-latest
-    concurrency:
-      group: uv-cache-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
     outputs:
       release_candidate: ${{ steps.check_version.outputs.release_candidate }}
     permissions:
@@ -94,9 +91,6 @@ jobs:
     name: Publish Python 🐍 Distribution 📦 to PyPi
     needs: build
     runs-on: ubuntu-latest
-    concurrency:
-      group: uv-cache-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
     outputs:
       release_candidate: ${{ needs.build.outputs.release_candidate }}
     environment:
@@ -126,9 +120,6 @@ jobs:
   finalize:
     name: Increment Version ⬆️ and Issue Release
     runs-on: ubuntu-latest
-    concurrency:
-      group: uv-cache-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
     needs: publish-to-pypi
     permissions:
       actions: write
@@ -191,9 +182,6 @@ jobs:
   sync:
     name: Sync Hotfix Branch 🔄
     runs-on: ubuntu-latest
-    concurrency:
-      group: uv-cache-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
     needs: finalize
     permissions:
       contents: write
@@ -220,9 +208,6 @@ jobs:
   cycle:
     name: Cycle Development 🔁 Version Bump ⬆️
     runs-on: ubuntu-latest
-    concurrency:
-      group: uv-cache-${{ github.workflow }}-${{ github.ref }}
-      cancel-in-progress: false
     needs: finalize
     permissions:
       actions: write
